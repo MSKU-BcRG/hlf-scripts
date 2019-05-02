@@ -3,6 +3,7 @@
 # Default values
 USERNAME="admin"
 PASSWORD="pwd"
+NETWORK="ca.localhost.com"
 RUNSERVER=false
 usage="ARTIK BURAYA NE YAZMAMIZ GEREKİYOR BİLMİYORUM HİÇ MANUAL YAZMADIM"
 
@@ -17,6 +18,10 @@ do
 			;;
         --password | -p)
         	PASSWORD=$1
+        	exit
+        ;;
+		--network | -n)
+        	NETWORK=$1
         	exit
         ;;
 		--help | -h)
@@ -40,7 +45,7 @@ export FABRIC_CA_SERVER_HOME=$PWD/fabric-ca/server
 
 
 #Initializing the CA Server
-fabric-ca-server init -b $USERNAME:$PASSWORD
+fabric-ca-server init -b $USERNAME:$PASSWORD -n $NETWORK
 
 
 

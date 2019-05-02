@@ -19,85 +19,154 @@ if [ $1 = "clear" ]; then
 	exit 0
 fi
 
+# GUNCELLENECEK
 if [ $1 = "enroll" ]; then
 	# Default values for enrollment
 	ADMIN="admin"
 	PASSPORT="pwd"
 	PORT="7054"
 	HOST="localhost"
-	while [ ! $# -eq 0 ]
-		do
-			case "$1" in
-				--admin | -a)
-					ADMIN=$1
-					exit
-					;;
-				--passport | -p)
-					PASSPORT=$1
-					exit
-					;;
-				--host | -h)
-				HOST=$1
-				exit
-				;;
-				--port)
-					PORT = "7054"
-					exit
-					;;
-				esac
-				shift
-			done
+	shift 1
+	while (( "$#" )); do
+		echo $1
+		case "$1" in
+			--port)
+			PORT=$2
+			shift 2
+			;;
+			-a|--admin)
+			ADMIN=$2
+			shift 2
+			;;
+			-p|--passport)
+			PASSPORT=$2
+			shift 2
+			;;
+			-h|--host)
+			HOST=$2
+			shift 2
+			;;
+			-*|--*=) # unsupported flags
+			echo "Error: Unsupported flag $1" >&2
+			exit 1
+			;;
+  		esac
+	done
 
-	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/fabric-ca/$ADMIN
+	# Config Path -- Maybe Later
+	DEFAULT_CLIENT_CONFIG_YAML=$PWD/config/fabric-ca-client-config.yaml
+
+	# Set Path for Client
+	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/caserver/$ADMIN
+	mkdir -p $FABRIC_CA_CLIENT_HOME
+	cp $DEFAULT_CLIENT_CONFIG_YAML  "$FABRIC_CA_CLIENT_HOME/"
+
 	fabric-ca-client enroll -u http://$ADMIN:$PASSPORT@$HOST:$PORT
+	echo "For Checking Identity"
+	fabric-ca-client identity list
+	exit 0
+fi
+
+if [ $1 = "generate" ]; then
+	# Default values for enrollment
+	REGISTERADMIN="admin"
+	USERNAME="sample"
+	PASSPORT="pwd"
+	PEERTYPE="orderer"
+	HOST="localhost"
+	PORT="7054"
+	shift 1
+	while (( "$#" )); do
+		echo $1
+		case "$1" in
+			--port)
+			PORT=$2
+			shift 2
+			;;
+			-a|--admin)
+			REGISTERADMIN=$2
+			shift 2
+			;;
+			-p|--passport)
+			PASSPORT=$2
+			shift 2
+			;;
+			-u|--username)
+			USERNAME=$2
+			shift 2
+			;;
+			-t|--peertype)
+			PEERTYPE=$2
+			shift 2
+			;;
+			-h|--host)
+			HOST=$2
+			shift 2
+			;;
+			-*|--*=) # unsupported flags
+			echo "Error: Unsupported flag $1" >&2
+			exit 1
+			;;
+  		esac
+	done
+
+
+	echo "Generating process is starting"
+	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/caserver/$REGISTERADMIN
+
+	if [ $PEERTYPE = "peer" ];
+	then
+	    echo "Registering: "$USERNAME" as peer"
+    	ATTRIBUTES='"hf.Registrar.Roles=peer,user,client","hf.AffiliationMgr=true","hf.Revoker=true"'
+    	fabric-ca-client register --id.type client --id.name $USERNAME"-admin" --id.secret $PASSPORT --id.affiliation $USERNAME --id.attrs $ATTRIBUTES
+   	fi
+
+	if [ $PEERTYPE = "orderer" ];
+	then
+		echo "Registering: "$USERNAME" as orderer"
+    	ATTRIBUTES='"hf.Registrar.Roles=orderer,user,client"'
+ 		fabric-ca-client register --id.type client --id.name $USERNAME"-admin" --id.secret $PASSPORT --id.affiliation $USERNAME --id.attrs $ATTRIBUTES
+	fi
+
+	echo "Enrolling: "$USERNAME"-admin"
+
+	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/$USERNAME/admin
+    # Enroll the admin identity
+    fabric-ca-client enroll -u http://$USERNAME-admin:$PASSPORT@$HOST:$PORT
+
+	# Setup the MSP for acme
+    mkdir -p $FABRIC_CA_CLIENT_HOME/msp/admincerts
+    echo "====> $FABRIC_CA_CLIENT_HOME/msp/admincerts"
+    cp $FABRIC_CA_CLIENT_HOME/../../caserver/admin/msp/signcerts/*  $FABRIC_CA_CLIENT_HOME/msp/admincerts
+
 	exit 0
 fi
 
 # Default values
 NETWORK="ca.localhost.com"
 PORT="7054"
-<<<<<<< HEAD
-BACKGROUND=false
-usage="ARTIK BURAYA NE YAZMAMIZ GEREKİYOR BİLMİYORUM HİÇ MANUAL YAZMADIM"
-=======
->>>>>>> 5751046a42bf2a7e0720feb7f900540694cb1039
 
-while [ ! $# -eq 0 ]
-do
-	case "$1" in
-		--network | -n)
-			NETWORK=$1
-			exit
-			;;
-		--port | -p)
-			PORT=$1
-			exit
-			;;
-<<<<<<< HEAD
-		--background | -b)
-			BACKGROUND=true
-			exit
-			;;
-		
-		--help | -h)
-			echo $usage
-			exit
-			;;
-		*)
-			echo $'Invalid option\n' $usage
-			exit
-			;;	
-=======
-
->>>>>>> 5751046a42bf2a7e0720feb7f900540694cb1039
-	esac
-	shift
+while (( "$#" )); do
+  case "$1" in
+    -p|--port)
+      PORT=$2
+      shift 2
+      ;;
+    -n|--network)
+      NETWORK=$2
+      shift 2
+      ;;
+    -*|--*=) # unsupported flags
+      echo "Error: Unsupported flag $1" >&2
+      exit 1
+      ;;
+  esac
 done
 
 
 echo 'Launching network with '$NETWORK
 
-# Set the location 
+# Set the location
 export FABRIC_CA_SERVER_HOME=$PWD/fabric-ca/server
 
 # Launch network
