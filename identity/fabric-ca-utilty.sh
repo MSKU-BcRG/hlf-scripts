@@ -24,6 +24,7 @@ fi
 NETWORK="ca.localhost.com"
 PORT="7054"
 BACKGROUND=false
+usage="ARTIK BURAYA NE YAZMAMIZ GEREKİYOR BİLMİYORUM HİÇ MANUAL YAZMADIM"
 
 while [ ! $# -eq 0 ]
 do
@@ -40,6 +41,15 @@ do
 			BACKGROUND=true
 			exit
 			;;
+		
+		--help | -h)
+			echo $usage
+			exit
+			;;
+		*)
+			echo $'Invalid option\n' $usage
+			exit
+			;;	
 	esac
 	shift
 done
