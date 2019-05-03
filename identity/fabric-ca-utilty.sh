@@ -19,7 +19,40 @@ if [ $1 = "clear" ]; then
 	exit 0
 fi
 
-# GUNCELLENECEK
+if [ $1 = "setupmsp" ]; then
+
+	export FABRIC_CA_SERVER_HOME=$PWD/fabric-ca/server
+	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client
+
+	ROOT_CA=$FABRIC_CA_SERVER_HOME/ca-cert.pem
+
+	
+	echo "MSP Setup starting"
+	for entry in `ls $FABRIC_CA_CLIENT_HOME -Icaserver`
+		do
+		echo "For $entry admin"
+		# Paths for copying
+		DESTINATION=$FABRIC_CA_CLIENT_HOME/$entry
+		CURRENT=$DESTINATION/admin
+
+		# Org Msp Directories Generated
+		mkdir -p $DESTINATION/msp/admincerts
+		mkdir -p $DESTINATION/msp/cacerts
+		mkdir -p $DESTINATION/msp/keystore
+
+		# Copying Server CA to Org MSP
+		echo "Copying Server Certs from $ROOT_CA to $DESTINATION/msp/cacerts"
+		cp -ru $ROOT_CA $DESTINATION/msp/cacerts
+
+		# Copying peer admin signcerts to Org MSP
+		echo "Copying Admin Certs from $FABRIC_CA_CLIENT_HOME/msp/signcerts/ to $DESTINATION/msp/admincerts"
+		cp $DESTINATION/admin/msp/signcerts/* $DESTINATION/msp/admincerts
+		done
+
+	echo "MSP SETUP DONE"
+	exit 1
+fi
+
 if [ $1 = "enroll" ]; then
 	# Default values for enrollment
 	ADMIN="admin"
@@ -71,10 +104,11 @@ if [ $1 = "generate" ]; then
 	# Default values for enrollment
 	REGISTERADMIN="admin"
 	USERNAME="sample"
-	PASSPORT="pwd"
+	PASSWORD="pwd"
 	PEERTYPE="orderer"
 	HOST="localhost"
 	PORT="7054"
+	AFFILIATION="sample"
 	shift 1
 	while (( "$#" )); do
 		echo $1
@@ -87,8 +121,12 @@ if [ $1 = "generate" ]; then
 			REGISTERADMIN=$2
 			shift 2
 			;;
-			-p|--passport)
-			PASSPORT=$2
+			-af|--affiliation)
+			AFFILIATION=$2
+			shift 2
+			;;
+			-p|--password)
+			PASSWORD=$2
 			shift 2
 			;;
 			-u|--username)
@@ -118,21 +156,21 @@ if [ $1 = "generate" ]; then
 	then
 	    echo "Registering: "$USERNAME" as peer"
     	ATTRIBUTES='"hf.Registrar.Roles=peer,user,client","hf.AffiliationMgr=true","hf.Revoker=true"'
-    	fabric-ca-client register --id.type client --id.name $USERNAME"-admin" --id.secret $PASSPORT --id.affiliation $USERNAME --id.attrs $ATTRIBUTES
+    	fabric-ca-client register --id.type client --id.name $USERNAME"-admin" --id.secret $PASSWORD --id.affiliation $AFFILIATION --id.attrs $ATTRIBUTES
    	fi
 
 	if [ $PEERTYPE = "orderer" ];
 	then
 		echo "Registering: "$USERNAME" as orderer"
     	ATTRIBUTES='"hf.Registrar.Roles=orderer,user,client"'
- 		fabric-ca-client register --id.type client --id.name $USERNAME"-admin" --id.secret $PASSPORT --id.affiliation $USERNAME --id.attrs $ATTRIBUTES
+ 		fabric-ca-client register --id.type client --id.name $USERNAME"-admin" --id.secret $PASSWORD --id.affiliation $AFFILIATION --id.attrs $ATTRIBUTES
 	fi
 
 	echo "Enrolling: "$USERNAME"-admin"
 
-	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/$USERNAME/admin
+	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/$AFFILIATION/admin
     # Enroll the admin identity
-    fabric-ca-client enroll -u http://$USERNAME-admin:$PASSPORT@$HOST:$PORT
+    fabric-ca-client enroll -u http://$USERNAME-admin:$PASSWORD@$HOST:$PORT
 
 	# Setup the MSP for acme
     mkdir -p $FABRIC_CA_CLIENT_HOME/msp/admincerts

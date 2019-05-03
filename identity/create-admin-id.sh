@@ -47,5 +47,10 @@ export FABRIC_CA_SERVER_HOME=$PWD/fabric-ca/server
 #Initializing the CA Server
 fabric-ca-server init -b $USERNAME:$PASSWORD -n $NETWORK
 
+# Config Path -- Maybe Later
+DEFAULT_CLIENT_CONFIG_YAML=$PWD/config/fabric-ca-server-config.yaml
+
+# Set Path for Client
+cp $DEFAULT_CLIENT_CONFIG_YAML  "$PWD/fabric-ca/server/"
 
 

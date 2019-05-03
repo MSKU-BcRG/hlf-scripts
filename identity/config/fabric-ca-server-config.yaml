@@ -164,3 +164,7 @@ bccsp:
 affiliations:
   orderer:
     - support
+  aydem:
+    - tracker
+  enerjisa:
+    - tracker
