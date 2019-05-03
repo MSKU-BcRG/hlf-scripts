@@ -87,7 +87,7 @@ if [ $1 = "enroll" ]; then
 	done
 
 	# Config Path -- Maybe Later
-	DEFAULT_CLIENT_CONFIG_YAML=$PWD/config/fabric-ca-client-config.yaml
+	DEFAULT_CLIENT_CONFIG_YAML=$PWD/../config/fabric-ca-client-config.yaml
 
 	# Set Path for Client
 	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/caserver/$ADMIN
@@ -97,6 +97,65 @@ if [ $1 = "enroll" ]; then
 	fabric-ca-client enroll -u http://$ADMIN:$PASSPORT@$HOST:$PORT
 	echo "For Checking Identity"
 	fabric-ca-client identity list
+	exit 0
+fi
+
+if [ $1 = "orderer" ]; then
+	# Default values for enrollment
+	ORG="orderer"
+	USERNAME="orderer"
+	PASSWORD="pwd"
+	PORT="7054"
+	HOST="localhost"
+	shift 1
+	while (( "$#" )); do
+		echo $1
+		case "$1" in
+			-o|--org)
+			ORG=$2
+			shift 2
+			;;
+			--port)
+			PORT=$2
+			shift 2
+			;;
+			-u|--username)
+			USERNAME=$2
+			shift 2
+			;;
+			-p|--password)
+			PASSWORD=$2
+			shift 2
+			;;
+			-h|--host)
+			HOST=$2
+			shift 2
+			;;
+			-*|--*=) # unsupported flags
+			echo "Error: Unsupported flag $1" >&2
+			exit 1
+			;;
+  		esac
+	done
+	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/$ORG/admin
+	echo "Orderer Register Starting..."
+	fabric-ca-client register --id.type orderer --id.name $USERNAME --id.secret $PASSWORD --id.affiliation orderer
+	echo "Orderer Register Completed with "$USERNAME
+
+
+	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/$ORG/$USERNAME
+
+	echo http://$USERNAME:$PASSWORD@$HOST:$PORT
+	echo $FABRIC_CA_CLIENT_HOME
+
+	fabric-ca-client enroll -u http://$USERNAME:$PASSWORD@$HOST:$PORT
+
+	echo "Orderer Enrolled on "$HOST:$PORT
+
+	mkdir -p $FABRIC_CA_CLIENT_HOME/msp/admincerts
+
+	cp $PWD/fabric-ca/client//$ORG/admin/msp/signcerts/* $FABRIC_CA_CLIENT_HOME/msp/admincerts
+
 	exit 0
 fi
 
@@ -147,7 +206,6 @@ if [ $1 = "generate" ]; then
 			;;
   		esac
 	done
-
 
 	echo "Generating process is starting"
 	export FABRIC_CA_CLIENT_HOME=$PWD/fabric-ca/client/caserver/$REGISTERADMIN

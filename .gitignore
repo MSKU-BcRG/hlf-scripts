@@ -1,1 +1,7 @@
 identity/fabric-ca
+tools/
+orderer/chains
+orderer/index
+orderer/orderer.log
+network/artifacts
+
