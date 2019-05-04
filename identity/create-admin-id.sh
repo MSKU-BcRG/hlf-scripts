@@ -15,35 +15,6 @@ display_help() {
     exit 1
 }
 
-
-# Parameters that the script can take, and their consequences
-#while [ ! $# -eq 0 ]
-#do
-#	case "$1" in
-#		--username | -u)
-#			USERNAME=$1
-#			exit
-#		;;
- #       --password | -p)
-  #      	PASSWORD=$1
-   #     	exit
-    #    ;;
-#		--name | -n)
-#        	NAME=$1
-#        	exit
-#        ;;
-#		--help | -h)
-#			display_help
-#			exit
-#		;;
-#		*)
-#			echo $'Invalid option\n' $usage	
-#			exit
-#		;;		
-#	esac
-#	shift
-#done
-
 while getopts ":u:p:n:h" opt; do
   case $opt in
     u)
