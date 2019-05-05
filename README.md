@@ -6,11 +6,6 @@ Scripts for creation hyperledger fabric network components.
 Initializes the CA server with an admin identity.
 !!! This CA server is not configured for TLS connections. Don't use for production.
 
-Usage: ./create-admin-id.sh -u <username> -p <password> -n <nameOfCA> "
-    -u, --username    create admin user with specified username. Default is 'admin'
-    -p, --password    create admin user with specified password. Default is 'pwd'
-    -n, --name        create this CA with specified name. Default is 'ca.localhost.com'
-
 ## Installing
 
 ### prereqs-ubuntu.sh
