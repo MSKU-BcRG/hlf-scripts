@@ -13,12 +13,23 @@
 # limitations under the License.
 #
 
-# Usage:
-#
-# ./prereqs-ubuntu.sh
-#
-# User must then logout and login upon completion of script
-#
+display_help() {
+    echo "Usage: ./prereqs-ubuntu.sh"
+    echo
+    echo "   -h, --help    display help"
+    echo "   This file will install the packages that required for Hyperledger Fabric and CA"
+    echo "   git, cURL, nodeJS, nvm, docker, docker compose, Python2, unzip"
+    echo "   Please logout and  login from the current user to apply some changes."
+    exit 1
+}
+
+while true; do
+  case "$1" in
+    -h | --help ) display_help; shift ;;
+    #-- ) shift; break ;;
+    * ) break ;;
+  esac
+done
 
 # Exit on any failure
 set -e
@@ -51,6 +62,10 @@ sudo apt-get update
 # Install Git
 echo "# Installing Git"
 sudo apt-get install -y git
+
+# Install cURL
+echo "Installing cURL"
+sudo apt-get install curl
 
 # Install nvm dependencies
 echo "# Installing nvm dependencies"
@@ -120,6 +135,10 @@ sudo apt-get -y install unzip
 echo ''
 echo 'Installation completed, versions installed are:'
 echo ''
+echo -n 'Git:           '
+git --version
+echo -n 'cURL:           '
+curl --version
 echo -n 'Node:           '
 node --version
 echo -n 'npm:            '
