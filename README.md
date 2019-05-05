@@ -9,7 +9,7 @@ Initializes the CA server with an admin identity.
 ## Installing
 
 ### prereqs-ubuntu.sh
-For installing Prerequisites for Hyperledger Fabric and Hyperledger Fabric CA use prereqs-ubuntu.sh
+For installing Prerequisites for Hyperledger Fabric and Hyperledger Fabric CA use prereqs-ubuntu.sh.
 Unfortunately this is not enough. Please install GoLang manualy and don't forget to set the environment variable GOPATH to point at the Go workspace.
 
 ### fabric-ca-install.sh
