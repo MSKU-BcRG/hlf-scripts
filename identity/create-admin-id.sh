@@ -11,7 +11,7 @@ display_help() {
     echo
     echo "   -u, --username    create admin user with specified username. Default is 'admin'"
     echo "   -p, --password    create admin user with specified password. Default is 'pwd'"
-    echo "   -n, --name        create this CA with specified name. Default is ca.localhost.com"
+    echo "   -n, --name        create this CA with specified name. Default is 'ca.localhost.com'"
     exit 1
 }
 
@@ -59,5 +59,3 @@ DEFAULT_CLIENT_CONFIG_YAML=$PWD/config/fabric-ca-server-config.yaml
 
 # Set Path for Client
 cp $DEFAULT_CLIENT_CONFIG_YAML  "$PWD/fabric-ca/server/"
-
-
